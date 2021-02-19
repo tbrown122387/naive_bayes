@@ -1,0 +1,192 @@
+---
+title: "Naive Bayes"
+author: "Taylor"
+date: "2/18/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Naive Bayes
+
+Naive Bayes is a **classifier**. Estimating this model will help us decide the category of some observation It will make an informed decision of using whatever inputs/predictors we choose. 
+
+Example: Is this tweet a positive review of our company? Or a negative one?
+
+## Visualizing the Data
+
+```{r, echo=FALSE, out.width="100%", fig.cap=""}
+knitr::include_graphics("pics/data.png")
+```
+
+
+## Writing Down the Model
+
+
+$$
+P(y \mid x_1, \dots, x_p) = \frac{P(y) P(x_1, \dots, x_p \mid y)}
+                                 {P(x_1, \dots, x_p)} 
+$$
+
+- $y \in \{0,1,2\}$ the category/label of one observation/row
+- $x_j$ the value of predictor $j \in \{1,\ldots,p\}$ for our one observation/row
+- $p$: the number of predictors is (13 for us)
+
+
+
+## Why is this model "Naive?"
+
+In
+$$
+P(y \mid x_1, \dots, x_p) = \frac{P(y) P(x_1, \dots, x_p \mid y)}
+                                 {P(x_1, \dots, x_p)} 
+$$
+
+we assume **conditional independence** of the predictors:
+
+$$
+P( x_1, \dots, x_p \mid y) = P( x_1 \mid y) \times P( x_2 \mid y) \times \cdots \times P( x_p \mid y)
+$$
+
+## Checking the Naivete 
+
+
+```
+# checking conditional independence
+df[df.y == 0].drop(['y'], axis=1).corr()
+#df[df.y == 1].drop(['y'], axis=1).corr()
+#df[df.y == 2].drop(['y'], axis=1).corr()
+```
+
+
+
+## Picking the Predictor Distribution
+
+**Gaussian** Naive Bayes is popular if your predictors are numerical. 
+
+$$
+P(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
+$$
+
+Multinomial ( Bernoulli and categorical) NB is (are) popular for categorical predictors.
+
+## Checking (conditional) normality
+
+```
+# check normality
+df[df.y==0].drop(['y'], axis=1).hist()
+#df[df.y==1].drop(['y'], axis=1).hist()
+#df[df.y==2].drop(['y'], axis=1).hist()
+```
+```{r, echo=FALSE, out.width="75%", fig.cap=""}
+knitr::include_graphics("pics/hists.png")
+```
+
+## Fitting the Model (1 of 3)
+
+Fitting is done with **maximum likelihood estimation**. The likelihood for one row of data is
+
+$$
+P(y, x_1, \dots, x_p) = P(y) P(x_1, \dots, x_p \mid y)
+$$
+or
+
+$$
+P(y_i, x_{i,1}, \dots, x_{i,p}) = P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+$$
+
+where $i=1,\ldots,n$ for $n$ rows of data. The **likelihood function** is 
+$$
+\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+$$
+
+Plug in all data, then pick parameters that maximize the function.
+
+
+## Fitting the Model (2 of 3)
+
+
+
+$$
+\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+$$
+Estimating (1) is usually done by counting the proportions of labels. 
+
+```
+gnb = GaussianNB()
+estimated_model = gnb.fit(X,y)
+estimated_model.class_prior_
+```
+```{r, echo=FALSE, out.width="75%", fig.cap=""}
+knitr::include_graphics("pics/label_props.png")
+```
+
+## Fitting the Model (3 of 3)
+
+
+
+$$
+\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+$$
+
+Estimating (2) is done with calculus. We need to estimate a mean and variance for each label/predictor pair.
+
+```
+gnb = GaussianNB()
+estimated_model = gnb.fit(X,y)
+estimated_model.theta_ # mean params
+estimated_model.sigma_ # std. dev. params
+```
+
+## Prediction
+
+Once we have parameter estimates, we can predict new labels $y'$ from new observations $(x_1',\ldots,x_p')$
+
+
+$$
+P(y' \mid x_1', \dots, x_p') = \frac{P(y') P(x'_1, \dots, x'_p \mid y')}
+                                 {P(x'_1, \dots, x'_p)}
+$$
+
+## Prediction
+
+
+$$
+\begin{align}
+y'_{\text{pred}} &= \arg\max_y \frac{P(y') P(x'_1, \dots, x'_p \mid y)}
+                                 {P(x'_1, \dots, x'_p)} \\
+                &= \arg\max_{y} P(y)P(x'_1, \dots, x'_p \mid y)
+\end{align}
+$$
+```
+y_pred = estimated_model.predict(X_new)
+```
+
+
+## Prediction
+
+**Out-of-sample** prediction is a common primary application.
+
+To assess accuracy, either wait for new data, use cross-validation or split the data into training and testing sets:
+
+
+```
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+y_pred = GaussianNB().fit(X_train, y_train).predict(X_test)
+```
+
+## On Misspecification, Overfitting and Computational Scaling
+
+### Tweaking 
+
+- too few/many predictors?
+- wrong predictors? (feature engineering)
+- conditional dependence and parameter sharing (LDA and QDA)
+
+### Scaling
+
+- closed-form and recursive formulas for parameter estimates
+- evaluating $P(y') P(x'_1, \dots, x'_p \mid y')$ is trivial
+- semi-supervised learning
