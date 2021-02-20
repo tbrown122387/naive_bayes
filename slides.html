@@ -3191,23 +3191,47 @@ df[df.y==0].drop([&#39;y&#39;], axis=1).hist()
 <p>Fitting is done with <strong>maximum likelihood estimation</strong>. The likelihood for one row of data is</p>
 
 <p>\[
-P(y, x_1, \dots, x_p) = P(y) P(x_1, \dots, x_p \mid y)
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
+\] where \(\theta\) is the collection of all model parameters.</p>
+
+</article></slide><slide class=""><hgroup><h2>Fitting the Model (1 of 3)</h2></hgroup><article  id="fitting-the-model-1-of-3-1">
+
+<p>Fitting is done with <strong>maximum likelihood estimation</strong>. The likelihood for one row of data is</p>
+
+<p>\[
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
 \] or</p>
 
 <p>\[
-P(y_i, x_{i,1}, \dots, x_{i,p}) = P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+P_{\theta}(y_i, x_{i,1}, \dots, x_{i,p}) = P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
 \]</p>
 
-<p>where \(i=1,\ldots,n\) for \(n\) rows of data. The <strong>likelihood function</strong> is \[
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+<p>where \(i=1,\ldots,n\) for \(n\) rows of data.</p>
+
+</article></slide><slide class=""><hgroup><h2>Fitting the Model (1 of 3)</h2></hgroup><article  id="fitting-the-model-1-of-3-2">
+
+<p>Fitting is done with <strong>maximum likelihood estimation</strong>. The likelihood for one row of data is</p>
+
+<p>\[
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
+\] or</p>
+
+<p>\[
+P_{\theta}(y_i, x_{i,1}, \dots, x_{i,p}) = P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
 \]</p>
 
-<p>Plug in all data, then pick parameters that maximize the function.</p>
+<p>where \(i=1,\ldots,n\) for \(n\) rows of data.</p>
+
+<p>The <strong>likelihood function</strong> is \[
+L(\theta) = \prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
+\]</p>
+
+<p>Pick parameters that maximize the function.</p>
 
 </article></slide><slide class=""><hgroup><h2>Fitting the Model (2 of 3)</h2></hgroup><article  id="fitting-the-model-2-of-3">
 
 <p>\[
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+\prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 \] Estimating (1) is usually done by counting the proportions of labels.</p>
 
 <pre >gnb = GaussianNB()
@@ -3219,7 +3243,7 @@ estimated_model.class_prior_</pre>
 </article></slide><slide class=""><hgroup><h2>Fitting the Model (3 of 3)</h2></hgroup><article  id="fitting-the-model-3-of-3">
 
 <p>\[
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+\prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 \]</p>
 
 <p>Estimating (2) is done with calculus. We need to estimate a mean and variance for each label/predictor pair.</p>

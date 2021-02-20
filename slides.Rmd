@@ -89,20 +89,48 @@ knitr::include_graphics("pics/hists.png")
 Fitting is done with **maximum likelihood estimation**. The likelihood for one row of data is
 
 $$
-P(y, x_1, \dots, x_p) = P(y) P(x_1, \dots, x_p \mid y)
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
+$$
+where $\theta$ is the collection of all model parameters.
+
+
+## Fitting the Model (1 of 3)
+
+Fitting is done with **maximum likelihood estimation**. The likelihood for one row of data is
+
+$$
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
 $$
 or
 
 $$
-P(y_i, x_{i,1}, \dots, x_{i,p}) = P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+P_{\theta}(y_i, x_{i,1}, \dots, x_{i,p}) = P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
 $$
 
-where $i=1,\ldots,n$ for $n$ rows of data. The **likelihood function** is 
+where $i=1,\ldots,n$ for $n$ rows of data. 
+
+
+## Fitting the Model (1 of 3)
+
+Fitting is done with **maximum likelihood estimation**. The likelihood for one row of data is
+
 $$
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i)
+P_{\color{red}{\theta}}(y, x_1, \dots, x_p) = P_{\color{red}{\theta}}(y) P_{\color{red}{\theta}}(x_1, \dots, x_p \mid y)
+$$
+or
+
+$$
+P_{\theta}(y_i, x_{i,1}, \dots, x_{i,p}) = P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
 $$
 
-Plug in all data, then pick parameters that maximize the function.
+where $i=1,\ldots,n$ for $n$ rows of data. 
+
+The **likelihood function** is 
+$$
+L(\theta) = \prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i)
+$$
+
+Pick parameters that maximize the function.
 
 
 ## Fitting the Model (2 of 3)
@@ -110,7 +138,7 @@ Plug in all data, then pick parameters that maximize the function.
 
 
 $$
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+\prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 $$
 Estimating (1) is usually done by counting the proportions of labels. 
 
@@ -128,7 +156,7 @@ knitr::include_graphics("pics/label_props.png")
 
 
 $$
-\prod_{i=1}^{n} P(y_i) P(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P(x_{i,j}\mid y_i)}_{\text{(2)}}
+\prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 $$
 
 Estimating (2) is done with calculus. We need to estimate a mean and variance for each label/predictor pair.
