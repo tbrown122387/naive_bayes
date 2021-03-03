@@ -1,7 +1,7 @@
 ---
 title: "Naive Bayes"
-author: "Taylor"
-date: "2/18/2021"
+author: "Taylor R. Brown"
+date: "3/5/2021"
 output: ioslides_presentation
 ---
 
@@ -11,14 +11,27 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Naive Bayes
 
-Naive Bayes is a **classifier**. Estimating this model will help us decide the category of some observation It will make an informed decision of using whatever inputs/predictors we choose. 
+Naive Bayes is a **classifier**. This model can help us decide the **category** of an observation given some input/predictor data about that observation. 
 
 Example: Is this tweet a positive review of our company? Or a negative one?
+
+Our [example](https://archive.ics.uci.edu/ml/datasets/Wine): tell me what the *cultivar* of this wine is, given 13 chemical measurements on it.
 
 ## Visualizing the Data
 
 ```{r, echo=FALSE, out.width="100%", fig.cap=""}
 knitr::include_graphics("pics/data.png")
+```
+
+
+## Visualizing Smaller Data
+
+```{r, echo=FALSE, out.width="60%", fig.cap=""}
+knitr::include_graphics("pics/baby_data_vis.png")
+```
+
+```{r, echo=FALSE, out.width="20%", fig.cap=""}
+knitr::include_graphics("pics/baby_data.png")
 ```
 
 
@@ -32,7 +45,7 @@ $$
 
 - $y \in \{0,1,2\}$ the category/label of one observation/row
 - $x_j$ the value of predictor $j \in \{1,\ldots,p\}$ for our one observation/row
-- $p$: the number of predictors is (13 for us)
+- $p$: the number of predictors is (13 for us, or 2 if we're thinking of the baby data)
 
 
 
@@ -47,7 +60,7 @@ $$
 we assume **conditional independence** of the predictors:
 
 $$
-P( x_1, \dots, x_p \mid y) = P( x_1 \mid y) \times P( x_2 \mid y) \times \cdots \times P( x_p \mid y)
+P( x_1, \dots, x_p \mid y) = P( x_1 \mid y) P( x_2 \mid y)  \cdots  P( x_p \mid y)
 $$
 
 ## Checking the Naivete 
@@ -67,7 +80,7 @@ df[df.y == 0].drop(['y'], axis=1).corr()
 **Gaussian** Naive Bayes is popular if your predictors are numerical. 
 
 $$
-P(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
+P(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_{i,y}}} \exp\left(-\frac{(x_i - \mu_{i,y})^2}{2\sigma^2_{i,y} }\right)
 $$
 
 Multinomial ( Bernoulli and categorical) NB is (are) popular for categorical predictors.
@@ -140,7 +153,7 @@ Pick parameters that maximize the function.
 $$
 \prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 $$
-Estimating (1) is usually done by counting the proportions of labels. 
+Estimating (1) is done with calculus. The estimates turn out to be empirical proportions of labels. 
 
 ```
 gnb = GaussianNB()
@@ -159,7 +172,7 @@ $$
 \prod_{i=1}^{n} P_{\theta}(y_i) P_{\theta}(x_{i,1}, \dots, x_{i,p} \mid y_i) = \underbrace{\prod_{i=1}^{n} P_{\theta}(y_i)}_{\text{(1)}} \underbrace{ \prod_{i=1}^{n} \prod_{j=1}^{p} P_{\theta}(x_{i,j}\mid y_i)}_{\text{(2)}}
 $$
 
-Estimating (2) is done with calculus. We need to estimate a mean and variance for each label/predictor pair.
+Estimating (2) is done with calculus, too. We need to estimate a mean and variance for each label/predictor pair.
 
 ```
 gnb = GaussianNB()
@@ -170,13 +183,28 @@ estimated_model.sigma_ # std. dev. params
 
 ## Prediction
 
-Once we have parameter estimates, we can predict new labels $y'$ from new observations $(x_1',\ldots,x_p')$
+Once we have parameter estimates, we can predict on **out-of-sample** data--predict new labels $y'$ from new observations $(x_1',\ldots,x_p')$
 
 
 $$
 P(y' \mid x_1', \dots, x_p') = \frac{P(y') P(x'_1, \dots, x'_p \mid y')}
                                  {P(x'_1, \dots, x'_p)}
 $$
+
+## Prediction
+
+Once we have parameter estimates, we can predict on **out-of-sample** data--predict new labels $y'$ from new observations $(x_1',\ldots,x_p')$
+
+
+
+$$
+P(y' \mid x_1', \dots, x_p') = \frac{P(y') P(x'_1, \dots, x'_p \mid y')}
+                                 {P(x'_1, \dots, x'_p)}
+$$
+
+```{r, out.width="50%", fig.cap=""}
+knitr::include_graphics("pics/baby_data_vis2.png")
+```
 
 ## Prediction
 
@@ -192,12 +220,18 @@ $$
 y_pred = estimated_model.predict(X_new)
 ```
 
+```{r, out.width="50%", fig.cap=""}
+knitr::include_graphics("pics/baby_data_vis2.png")
+```
+
 
 ## Prediction
 
-**Out-of-sample** prediction is a common primary application.
+To assess prediction accuracy, we need to compare predictions versus reality. This should only be done with out-of-sample data. Choices:
 
-To assess accuracy, either wait for new data, use cross-validation or split the data into training and testing sets:
+1. wait for a lot of new data, 
+2. split the data once into training and testing sets, or
+3. use cross-validation (many two-way splits)
 
 
 ```
@@ -211,10 +245,18 @@ y_pred = GaussianNB().fit(X_train, y_train).predict(X_test)
 
 - too few/many predictors?
 - wrong predictors? (feature engineering)
-- conditional dependence and parameter sharing (LDA and QDA)
+- add conditional dependence (LDA and QDA) and/or parameter sharing 
 
 ### Scaling
 
 - closed-form and recursive formulas for parameter estimates
 - evaluating $P(y') P(x'_1, \dots, x'_p \mid y')$ is trivial
 - semi-supervised learning
+
+
+## Materials
+
+Download the materials from here: 
+
+[https://github.com/tbrown122387/naive_bayes/](https://github.com/tbrown122387/naive_bayes/)
+
